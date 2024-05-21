@@ -1,5 +1,3 @@
-// script.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start_button');
     const tryAgainButton = document.getElementById('try_again');
@@ -8,37 +6,76 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizSection = document.querySelector('.quiz_section');
     const finalSection = document.querySelector('.final_section');
     const options = document.querySelectorAll('.option');
-    const answerFeedback = document.getElementById('answer_feedback');
     const scoreDisplay = document.getElementById('score');
     const finalScoreDisplay = document.getElementById('final_score');
-    const progressBar = document.getElementById('progress_bar');
+    const currentProgressBar = document.querySelector('.current-progress');
     const questionNumber = document.getElementById('question_number');
     const questionText = document.getElementById('question_text');
 
     let score = 0;
     let currentQuestionIndex = 0;
+    let selectedQuestions = [];
 
     const questions = [
         {
-            question: "Which of the following is the correct way to comment in HTML?",
-            options: ["// Comment", "<!-- Comment -->", "/* Comment */", "<! Comment>"],
+            question: "What is the powerhouse of the cell?",
+            options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi apparatus"],
             correctAnswer: 1
         },
         {
-            question: "What does CSS stand for?",
-            options: ["Cascading Style Sheets", "Colorful Style Sheets", "Creative Style Sheets", "Computer Style Sheets"],
+            question: "What is the value of 7^3?",
+            options: ["343", "49", "21", "81"],
             correctAnswer: 0
         },
         {
-            question: "Which HTML element is used for the largest heading?",
-            options: ["<heading>", "<h6>", "<head>", "<h1>"],
-            correctAnswer: 3
+            question: "Which river is the longest in the world?",
+            options: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+            correctAnswer: 1
+        },
+        {
+            question: "Who was the first woman to fly solo across the Atlantic Ocean?",
+            options: ["Amelia Earhart", "Bessie Coleman", "Harriet Quimby", "Jacqueline Cochran"],
+            correctAnswer: 0
+        },
+        {
+            question: "Which novel begins with the line, 'Call me Ishmael'?",
+            options: ["Moby Dick", "War and Peace", "Great Expectations", "The Catcher in the Rye"],
+            correctAnswer: 0
+        },
+        {
+            question: "How many gold medals did Michael Phelps win in the 2008 Beijing Olympics?",
+            options: ["6", "7", "8", "9"],
+            correctAnswer: 2
+        },
+        {
+            question: "Which composer wrote the opera 'The Magic Flute'?",
+            options: ["Ludwig van Beethoven", "Wolfgang Amadeus Mozart", "Johann Sebastian Bach", "Richard Wagner"],
+            correctAnswer: 1
+        },
+        {
+            question: "In which movie does the character Neo appear?",
+            options: ["The Matrix", "Inception", "Avatar", "Terminator"],
+            correctAnswer: 0
+        },
+        {
+            question: "What is the name of the first electronic general-purpose computer?",
+            options: ["ENIAC", "UNIVAC", "IBM 701", "Colossus"],
+            correctAnswer: 0
+        },
+        {
+            question: "Who painted 'The Starry Night'?",
+            options: ["Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Leonardo da Vinci"],
+            correctAnswer: 1
         }
     ];
 
-    const totalQuestions = questions.length;
+    function getRandomQuestions() {
+        const shuffled = questions.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 5);
+    }
 
     startButton.addEventListener('click', () => {
+        selectedQuestions = getRandomQuestions();
         quizHome.style.display = 'none';
         quizSection.style.display = 'block';
         loadQuestion();
@@ -46,12 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     options.forEach(option => {
         option.addEventListener('click', (e) => {
-            const selectedAnswer = e.target;
+            const selectedAnswer = e.target.closest('.option');
             const answerIndex = Array.from(options).indexOf(selectedAnswer);
 
-            if (answerIndex === questions[currentQuestionIndex].correctAnswer) {
+            if (answerIndex === selectedQuestions[currentQuestionIndex].correctAnswer) {
                 selectedAnswer.classList.add('correct');
-                score+=10;
+                score += 10;
             } else {
                 selectedAnswer.classList.add('incorrect');
             }
@@ -59,35 +96,34 @@ document.addEventListener('DOMContentLoaded', () => {
             options.forEach(option => option.disabled = true);
 
             setTimeout(() => {
-                if (currentQuestionIndex < totalQuestions - 1) {
+                if (currentQuestionIndex < selectedQuestions.length - 1) {
                     currentQuestionIndex++;
                     loadQuestion();
                 } else {
                     showFinalScore();
                 }
-            }, 1000);
+            }, 500);
         });
     });
 
     function loadQuestion() {
-        const currentQuestion = questions[currentQuestionIndex];
-        questionNumber.textContent = `Question ${currentQuestionIndex + 1}/${totalQuestions}`;
+        const currentQuestion = selectedQuestions[currentQuestionIndex];
+        questionNumber.textContent = `Question ${currentQuestionIndex + 1}/${selectedQuestions.length}`;
         scoreDisplay.textContent = score;
         questionText.textContent = currentQuestion.question;
         options.forEach((option, index) => {
-            option.textContent = currentQuestion.options[index];
+            option.querySelector('.option_number').textContent = String.fromCharCode(65 + index) + '.';
+            option.querySelector('.option_text').textContent = currentQuestion.options[index];
             option.classList.remove('correct', 'incorrect');
             option.disabled = false;
         });
 
         updateProgressBar();
-        answerFeedback.style.display = 'none';
     }
 
-
     function updateProgressBar() {
-        const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
-        progressBar.style.width = `${progress}%`;
+        const progress = ((currentQuestionIndex) / selectedQuestions.length) * 100;
+        currentProgressBar.style.width = `${progress}%`;
     }
 
     function showFinalScore() {
@@ -102,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     goHomeButton.addEventListener('click', () => {
         finalSection.style.display = 'none';
-        quizHome.style.display = 'block';
+        quizHome.style.display = 'flex';
         resetQuiz();
         quizSection.style.display = 'none';
     });
